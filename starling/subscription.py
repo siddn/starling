@@ -1,7 +1,7 @@
 import zmq
 import socket
 import time
-import simpleudp
+import starling.simpleudp
 import threading
 import atexit
 from queue import Queue
@@ -48,7 +48,6 @@ def to_regex(topic: str):
 
     return re.compile(f'^{escaped}$')
 
-
 # For the nexus subscriber, we assume that there is one or more nexuses that is aggregating messages from multiple publishers. We will connect to the nexus's XPUB socket and listen for messages on subscribed topics. The nexus will also broadcast its presence via UDP.
 class NexusSubscriber():
     """A subscriber class that expects a nexus node which broadcasts its presence via UDP and allows subscribing to topics.
@@ -60,7 +59,7 @@ class NexusSubscriber():
     def __init__(self, ctx: zmq.Context=None, queue_size: int=MEDIUM):
         self.ctx = ctx if ctx else zmq.Context.instance()
         self.sub = self.ctx.socket(zmq.SUB)
-        self.udp = simpleudp.UDPBroadcaster(port=8899)
+        self.udp = starling.simpleudp.UDPBroadcaster(port=8899)
         self.poller = zmq.Poller()
         self.poller.register(self.sub, zmq.POLLIN)
         self.poller.register(self.udp.sock, zmq.POLLIN)

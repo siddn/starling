@@ -1,12 +1,31 @@
 import socket
 import threading
 
+import psutil
+import ipaddress
+
 LOCALHOST = '127.0.0.1'
 
 def get_ips():
     """Get the local IPV4 addresses of the machine."""
     hostname = socket.gethostname()
     return {*socket.gethostbyname_ex(hostname)[2], LOCALHOST}
+
+def get_broadcast_addresses():
+    broadcast_addresses = set()
+
+    for interface, addrs in psutil.net_if_addrs().items():
+        for addr in addrs:
+            if addr.family == socket.AF_INET and addr.address != '127.0.0.1':
+                ip = addr.address
+                netmask = addr.netmask
+                if ip and netmask:
+                    network = ipaddress.IPv4Network(f"{ip}/{netmask}", strict=False)
+                    if network.is_link_local:
+                        continue
+                    broadcast_addresses.add(str(network.broadcast_address))
+    
+    return broadcast_addresses
 
 class UDPBroadcaster():
     def __init__(self, port=5005):
@@ -15,12 +34,12 @@ class UDPBroadcaster():
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.bind(('', self.port))
+        self.broadcast_addrs = get_broadcast_addresses()
 
     def send(self, message):
         """Broadcast a message to the network."""
-        self.sock.sendto(message.encode('utf-8'), ('<broadcast>', self.port))
-        # self.sock.sendto(message.encode('utf-8'), ('172.29.240.255', self.port))
-
+        for addr in self.broadcast_addrs:
+            self.sock.sendto(message.encode('utf-8'), (addr, self.port))
 
     def recv(self):
         """Receive a message from the network."""

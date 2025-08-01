@@ -1,7 +1,7 @@
 import zmq
 import socket
 import time
-import simpleudp
+import starling.simpleudp
 import threading
 import atexit
 import re
@@ -35,7 +35,7 @@ class NexusPublisher():
     def __init__(self, ctx: zmq.Context=None):
         self.ctx = ctx if ctx else zmq.Context.instance()
         self.pub = self.ctx.socket(zmq.PUB)
-        self.udp = simpleudp.UDPBroadcaster(port=8899)
+        self.udp = starling.simpleudp.UDPBroadcaster(port=8899)
         self.poller = zmq.Poller()
         self.poller.register(self.udp.sock, zmq.POLLIN)
         self.running = True
@@ -109,7 +109,7 @@ if __name__ == "__main__":
             'orient': {'w': 1.0, 'x': 0.0, 'y': 0.0, 'z': 0.0},
             'id': '11111'
         }
-        publisher.send('topic2', msgspec.json.encode(imu_data))
+        publisher.send('topic', msgspec.json.encode(imu_data))
         time.sleep(.001)
 
         # Cap'n Proto example
