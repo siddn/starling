@@ -1,0 +1,2 @@
+[console_scripts]
+starling-nexus = starling.nexus:_main

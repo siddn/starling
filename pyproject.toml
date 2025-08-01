@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools", "wheel", "cython"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "starling-py"
+version = "0.1.0"
+description = "Python implementation of the Starling framework, a ROS alternative for robotics applications."
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GLP-3.0 License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Framework :: Robot Framework",
+]
+authors = [
+    { name = "Siddharth R. Nathella", email = "siddn3212+starling@gmail.com" }
+]
+license = { text = "GLP-3.0 License" }
+dependencies = [
+    "pyzmq",
+    "msgspec",
+]
+
+[project.urls]
+homepage = "https://github.com/siddn/starling"
+repository = "https://github.com/siddn/starling"
+
+[project.scripts]
+starling-nexus = "starling.nexus:_main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+

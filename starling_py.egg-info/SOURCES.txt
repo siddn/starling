@@ -1,0 +1,15 @@
+README.md
+pyproject.toml
+for later/rate.py
+starling/__init__.py
+starling/nexus.py
+starling/publication.py
+starling/simpleudp.py
+starling/subscription.py
+starling_py.egg-info/PKG-INFO
+starling_py.egg-info/SOURCES.txt
+starling_py.egg-info/dependency_links.txt
+starling_py.egg-info/entry_points.txt
+starling_py.egg-info/requires.txt
+starling_py.egg-info/top_level.txt
+testing/serializer.py
