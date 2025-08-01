@@ -8,6 +8,6 @@ In general, this library is suited to a large number of topics (on the order of 
 
 Deciding on a serialization schema
 
-Likely not Cap'n proto. May be conceptually better, but use in C/C++ is not great.
+Likely not Cap'n proto. May be conceptually better, but the actual in language use is pretty un-ergonomic :(.
 
-Probably will use Protobufs.
+Probably will use Protobufs? Just found out about bebop could be cool. msgspec is also just easy and schema-free.
