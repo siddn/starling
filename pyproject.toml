@@ -36,6 +36,7 @@ repository = "https://github.com/siddn/starling"
 
 [project.scripts]
 starling-nexus = "starling.nexus:_main"
+starling-record = "starling.record:_main"
 
 [tool.setuptools.packages.find]
 where = ["."]
