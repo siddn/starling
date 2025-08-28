@@ -11,3 +11,7 @@ Deciding on a serialization schema
 Likely not Cap'n proto. May be conceptually better, but the actual in language use is pretty un-ergonomic :(.
 
 Probably will use Protobufs? Just found out about bebop could be cool. msgspec is also just easy and schema-free.
+
+Right now we're just going to run with user-defined serialization -> all callback functions and "send" operations expect bytes only
+
+big todo, establish "stale" heartbeats with the nexus. If no nexuses are live, the user should be able to act on that.
