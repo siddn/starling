@@ -109,7 +109,7 @@ if __name__ == "__main__":
             'orient': {'w': 1.0, 'x': 0.0, 'y': 0.0, 'z': 0.0},
             'id': '11111'
         }
-        publisher.send('topic', msgspec.json.encode(imu_data))
+        publisher.send('topics', msgspec.json.encode(imu_data))
         time.sleep(.001)
 
         # Cap'n Proto example

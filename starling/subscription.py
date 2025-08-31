@@ -187,7 +187,7 @@ if __name__ == "__main__":
 
     holder = TempDataClass(msg=None, topic=None)
 
-    sub.subscribe('topics.#.*', holder.update)
+    sub.subscribe('topics.#', holder.update)
     while True:
         time.sleep(1)
         print(holder.msg, holder.topic)

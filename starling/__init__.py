@@ -6,3 +6,6 @@ from .subscription import NexusSubscriber
 
 from starling.publication import NexusPublisher
 from .publication import NexusPublisher
+
+from starling.snapshot_logger import SnapshotCollector
+from .snapshot_logger import SnapshotCollector
