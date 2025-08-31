@@ -27,7 +27,8 @@ license = { text = "GLP-3.0 License" }
 dependencies = [
     "pyzmq",
     "msgspec",
-    "rich"
+    "rich",
+    "psutil"
 ]
 
 [project.urls]
