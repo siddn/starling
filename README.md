@@ -45,3 +45,10 @@ while True:
   time.sleep(1)
   
 ```
+5. Run both of these to see basic behavior
+6. To try snapshot collecting (rosbag counterpart), in a fourth terminal run the following.
+```console
+starling-snapshot --help
+starling-snapshot -t mytopic
+```
+you should end up with a gzipped JSON lines file. Extract the compressed file to view the saved data.
