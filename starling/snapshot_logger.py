@@ -35,7 +35,7 @@ class SnapshotCollector:
         while True and self.fhandle:
             entry = self.snapshots.get()
             if entry == "STOPWRITE":
-                break
+                return
             self.fhandle.write(self.encoder.encode(entry) + b'\n')
 
     def start(self, file_name: str = None):
