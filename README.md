@@ -15,3 +15,33 @@ Probably will use Protobufs? Just found out about bebop could be cool. msgspec i
 Right now we're just going to run with user-defined serialization -> all callback functions and "send" operations expect bytes only
 
 big todo, establish "stale" heartbeats with the nexus. If no nexuses are live, the user should be able to act on that.
+
+## Quickstart
+```console
+pip install git+https://github.com/siddn/starling.git
+```
+1. Start the nexus process in a seperate terminal. `starling-nexus`
+2. Add a basic publisher to a file
+```python
+from starling import NexusPublisher
+import time
+import msgspec
+
+pub = NexusPublisher()
+
+while True:
+  pub.send("mytopic", msgspec.json.encode({'time': time.perf_counter(), 'data': 'helooo'})
+  time.sleep(1)
+```
+4. Add a basic subscriber to a file
+```python
+from starling import NexusSubscriber
+import time
+import msgspec
+
+sub = NexusSubscriber()
+sub.subscribe("mytopic", lambda msg, topic: print(f'{topic}, {msgspec.json.decode(msg)}'))
+while True:
+  time.sleep(1)
+  
+```
