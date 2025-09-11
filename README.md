@@ -52,3 +52,39 @@ starling-snapshot --help
 starling-snapshot -t mytopic
 ```
 you should end up with a gzipped JSON lines file. Extract the compressed file to view the saved data.
+
+## Topics
+Topics are topics. For "topic paths" use a period for delimitting (ex. `mytopic.subtopic.subsubtopic`).
+For subscriptions, you can wildcard with `*` or `#`. `*` will fill to any single topic name (`mytopic.*` will match to `mytopic.subtopic1` but not `mytopic.subtopic1.subsubtopic`)
+The `#` will expand to any number of chained topics (or none!). Thus `#` is an alias for every topic.
+
+## Introspection and Tooling
+Starling has not build tools or build step. Right now everything exists as a pure dependency for its respective language (i.e. a Python module).
+We do however include some built in tools for debugging and viewing your topics.
+
+#### starling-snapshot
+The snapshot tool allows for automatic logging of a topic to a file. Right now, the topic must be published as a json deseriazliable message (as in the example above). 
+The topic will be logged into a gzipped json lines file, with each line being a message from that topic.
+```python
+starling-snapshot --topic mytopic --file myfile
+```
+
+#### starling-echo
+This will simply echo messages as they come in on a topic
+```python
+starling-echo topic_name
+```
+
+#### starling-frequency
+Displays the topic frequency over a specified window (defaults to 1000)
+```python
+starling-frequency topic_name --window 1000
+```
+
+#### starling-topics
+This will display all the topics. Optionally can filter by topic paths
+```python
+starling-topics
+# OR
+starling-topics --topic mytopic.* 
+```
