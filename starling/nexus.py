@@ -134,6 +134,13 @@ class StarlingNexus():
         signal.signal(signal.SIGINT, lambda signum, frame: self.stop())
         signal.signal(signal.SIGTERM, lambda signum, frame: self.stop())
         atexit.register(self.stop)
+        starlinglogo = """
+┏┓     ┓•    
+┗┓╋┏┓┏┓┃┓┏┓┏┓
+┗┛┗┗┻┛ ┗┗┛┗┗┫
+            ┛
+"""
+        print(starlinglogo.strip())
         print("[light_steel_blue]Starling Nexus node running. Press Ctrl+C to stop.")
         try:
             while True:

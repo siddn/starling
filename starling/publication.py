@@ -109,8 +109,8 @@ if __name__ == "__main__":
             'orient': {'w': 1.0, 'x': 0.0, 'y': 0.0, 'z': 0.0},
             'id': '11111'
         }
-        publisher.send('topics', msgspec.json.encode(imu_data))
-        time.sleep(.001)
+        publisher.send('tootopic', msgspec.json.encode(imu_data))
+        time.sleep(.009)
 
         # Cap'n Proto example
         # imu_data = IMUInfo.IMUData.new_message(
