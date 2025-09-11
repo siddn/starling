@@ -38,6 +38,10 @@ repository = "https://github.com/siddn/starling"
 [project.scripts]
 starling-nexus = "starling.nexus:_main"
 starling-snapshot = "starling.snapshot_logger:_main"
+starling-throttle = "starling.throttle:_main"
+starling-echo = "starling.introspection:_echo"
+starling-frequency = "starling.introspection:_frequency"
+starling-topics = "starling.introspection:_topics"
 
 [tool.setuptools.packages.find]
 where = ["."]
