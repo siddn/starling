@@ -63,8 +63,8 @@ Starling has not build tools or build step. Right now everything exists as a pur
 We do however include some built in tools for debugging and viewing your topics.
 
 #### starling-snapshot
-The snapshot tool allows for automatic logging of a topic to a file. Right now, the topic must be published as a json deseriazliable message (as in the example above). 
-The topic will be logged into a gzipped json lines file, with each line being a message from that topic.
+The snapshot tool allows for automatic logging of a topic to a file. Right now, the topic must be published as a JSON serializable message (as in the example above). 
+The topic will be logged into a gzipped JSON lines file, with each line being a message from that topic.
 ```python
 starling-snapshot --topic mytopic --file myfile
 ```
