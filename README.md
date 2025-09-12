@@ -54,9 +54,26 @@ starling-snapshot -t mytopic
 you should end up with a gzipped JSON lines file. Extract the compressed file to view the saved data.
 
 ## Topics
-Topics are topics. For "topic paths" use a period for delimitting (ex. `mytopic.subtopic.subsubtopic`).
+Topics are like a "channel" which messages can be sent to. Topics can be published to from multiple places and subscribed to from multiple places (see below). For "topic paths" use a period for delimitting (ex. `mytopic.subtopic.subsubtopic`).
 For subscriptions, you can wildcard with `*` or `#`. `*` will fill to any single topic name (`mytopic.*` will match to `mytopic.subtopic1` but not `mytopic.subtopic1.subsubtopic`)
 The `#` will expand to any number of chained topics (or none!). Thus `#` is an alias for every topic.
+
+## Publishing & Subscribing
+Any publisher can send any given message on any given topic. This allows a tremendous amount of flexibility, but can be a pretty big footgun if you don't make sure to appropriately handle messages that may have different forms and come from different processes.
+
+### Publishers
+A publisher can be created via `pub = starling.NexusPublisher`. To send a message, you simply need to call `pub.send('mytopic', msg)`, where the msg is a bytes object. Now, in all the examples, JSON is used as the serialization format, as there are efficient libraries for coverting dicts to JSON and back in python. It is also easily human readable and provides an easy schema-less logging solution. However, you can serialize using any sort of messaging you care to (protobufs, flatbuffers, msgpack, etc.). In terms of actual operation, when a message is "sent" it is handed off to a zeromq socket, which publishes the message to be recieved by the XSUB socket (handled by the `starling-nexus`), and routed out via an XPUB to any interested subscribers. This means that there is some hopping and a theoretical asyncronicity to the messaging that can impact coordination. This is rarely a practical limitation, but if you are acutely interested in when an event happened, including a timestamp in you message as one of the fields is crucial.
+
+### Subscribers
+Subscribers, like publishers, can recieve from multiple topics. Subscribers work on a callback system.
+```python
+def mycb(mg, topic):
+    print(f'{msg} heard from {topic}')
+
+sub = starling.NexusSubscriber()
+sub.subscribe("mytopic", mycb)
+```
+Each callback must accept a `msg` and `topic` argument. If you want to add additional arguments, this must be done via a lambda or other wrapper function. In this way you can specify arguments to be included. If you would like to have persistent information, use an object or dict, which can be passed by address.
 
 ## Introspection and Tooling
 Starling has not build tools or build step. Right now everything exists as a pure dependency for its respective language (i.e. a Python module).
