@@ -1,6 +1,8 @@
+<div align="center">
+<img src="https://raw.githubusercontent.com/siddn/starling/refs/heads/main/res/Murmur2.png" alt="murmur-logo" width="300px"/>
+</div>
+
 # Starling - A framework for pub-sub style robot coms
-
-
 ## Quickstart
 ```console
 pip install git+https://github.com/siddn/starling.git
