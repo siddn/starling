@@ -1,5 +1,5 @@
 <div align="center">
-<img src="https://raw.githubusercontent.com/siddn/starling/refs/heads/main/res/Murmur2.png" alt="murmur-logo" width="300px"/>
+<img src="https://raw.githubusercontent.com/siddn/starling/refs/heads/main/res/Murmur3Color.png" alt="murmur-logo" width="300px"/>
 </div>
 
 # Starling - A framework for pub-sub style robot coms
