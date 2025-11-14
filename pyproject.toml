@@ -28,7 +28,8 @@ dependencies = [
     "pyzmq",
     "msgspec",
     "rich",
-    "psutil"
+    "psutil",
+    "numpy"
 ]
 
 [project.urls]
