@@ -64,7 +64,8 @@ cdef class Rate:
             return to_sec(self.now) # No need to sleep, we're slow
 
         self.slow = False
-        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &self.sched, NULL)
+        with nogil:
+            clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &self.sched, NULL)
         return to_sec(self.now)
 
     def __call__(self):

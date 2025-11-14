@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "starling-py"
-version = "0.1.0"
+version = "0.1.0a"
 description = "Python implementation of the Starling framework, a ROS alternative for robotics applications."
 readme = "README.md"
 requires-python = ">=3.9"
@@ -28,7 +28,8 @@ dependencies = [
     "pyzmq",
     "msgspec",
     "rich",
-    "psutil"
+    "psutil",
+    "numpy"
 ]
 
 [project.urls]

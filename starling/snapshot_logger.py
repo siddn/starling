@@ -68,6 +68,7 @@ def _main():
     if file_name and not file_name.endswith(".jsonl.gz"):
         file_name += ".jsonl.gz"
     collection.start(file_name=file_name)
+    print(f"Logging snapshots from topic '{args.topic}' to file '{file_name or 'timestamped file'}'. Press Ctrl+C to stop.")
     if args.duration:
         time.sleep(args.duration)
     else:
