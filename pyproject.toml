@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel", "cython"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "starling-py"
+name = "starling"
 version = "0.1.0"
 description = "Python implementation of the Starling framework, a ROS alternative for robotics applications."
 readme = "README.md"
