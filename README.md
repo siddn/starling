@@ -1,4 +1,4 @@
-# Starling - A simple framework for publishing and subscribing to network messages for robot communication
+# Starling - A framework for pub-sub style robot coms
 
 ## Quickstart
 ```console
