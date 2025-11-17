@@ -57,6 +57,10 @@ class NexusPublisher():
             socks = dict(self.poller.poll(1000))
             if self.udp.sock.fileno() in socks:
                 message, addr = self.udp.recv()
+                # Check if we already know about this nexus
+                if addr in self.nexus:
+                    if self.nexus[addr] == tuple(message.split(' ')):
+                        continue
                 self.nexus.update({addr: tuple(message.split(' '))})
                 self._connect_to_nexus()
 

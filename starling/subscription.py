@@ -106,6 +106,10 @@ class NexusSubscriber():
 
             if self.udp.sock.fileno() in socks: # Check if there are UDP broadcasts from the nexus
                 message, addr = self.udp.recv()
+                # Check if we already know about this nexus
+                if addr in self.nexus:
+                    if self.nexus[addr] == tuple(message.split(' ')):
+                        continue
                 self.nexus.update({addr: tuple(message.split(' '))})
                 self._connect_to_nexus()
 
