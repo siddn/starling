@@ -91,19 +91,9 @@ if __name__ == "__main__":
 
     publisher = NexusPublisher()
 
+    idx = 0
     time.sleep(1)  # Wait for the publisher to connect to the nexus
     while True:
-        # Protobuf example
-        # imu_data = imudata_pb2.IMUData(
-        #     timestamp=time.perf_counter_ns(),
-        #     acceleration=imudata_pb2.Vector3(x=0.0, y=0.0, z=0.0),
-        #     gyroscope=imudata_pb2.Vector3(x=0.0, y=0.0, z=0.0),
-        #     magnetometer=imudata_pb2.Vector3(x=0.0, y=0.0, z=0.0),
-        #     orientation=imudata_pb2.Quaternion(w=1.0, x=0.0, y=0.0, z=0.0),
-        #     id='11111'
-        # )
-        # publisher.send('topics.subtopic.subsubtopic', imu_data.SerializeToString())
-
         # JSON example
         imu_data = {
             'ts': time.time(),
@@ -111,20 +101,11 @@ if __name__ == "__main__":
             'gyro': {'x': random.random()*2, 'y': random.random()*2, 'z': random.random()*2},
             'mag': {'x': random.random()*2, 'y': random.random()*2, 'z': random.random()*2},
             'orient': {'w': 1.0, 'x': 0.0, 'y': 0.0, 'z': 0.0},
-            'id': '11111'
+            'idx': idx
         }
-        publisher.send('topics', msgspec.json.encode(imu_data))
-        time.sleep(1)
-
-        # Cap'n Proto example
-        # imu_data = IMUInfo.IMUData.new_message(
-        #     timestamp=time.perf_counter_ns(),
-        #     acceleration=IMUInfo.Vector3(x=0.0, y=0.0, z=0.0),
-        #     gyroscope=IMUInfo.Vector3(x=0.0, y=0.0, z=0.0),
-        #     magnetometer=IMUInfo.Vector3(x=0.0, y=0.0, z=0.0),
-        #     orientation=IMUInfo.Quaternion(w=1.0, x=0.0, y=0.0, z=0.0),
-        #     id="11111"
-        # )
-        # publisher.send('topics.subtopic.subsubtopic', imu_data.to_bytes_packed())
-    
-        # time.sleep(0.001)
+        idx += 1
+        publisher.send('snapshot', msgspec.json.encode(imu_data))
+        if idx > 400_000:
+            break
+        time.sleep(0.001)
+    print("DONE")

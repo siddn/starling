@@ -36,8 +36,9 @@ class StarlingNexus():
 
         self.xpub.bind(f'tcp://*:{PUB_PORT}')
         self.xsub.bind(f'tcp://*:{SUB_PORT}')
-
-        self.myid = identifier if identifier else str(uuid.uuid4())[:8] # Construct UUID and take first 8 characters - Should be sufficient for most use cases
+        # Construct UUID and take first 8 characters - Should be sufficient for most use cases
+        # TODO: Maybe a better method to avoid collisions? Though this seems unlikely.
+        self.myid = identifier if identifier else str(uuid.uuid4())[:8] 
  
         # Set up a socket pair for the observer
         self.observer_in = self.ctx.socket(zmq.PAIR)
