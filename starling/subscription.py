@@ -106,17 +106,17 @@ class NexusSubscriber():
 
             if self.udp.sock.fileno() in socks: # Check if there are UDP broadcasts from the nexus
                 message, addr = self.udp.recv()
+                pub_port, sub_port, nexus_id = message.split(' ')
                 # Check if we already know about this nexus
-                if addr in self.nexus:
-                    if self.nexus[addr] == tuple(message.split(' ')):
-                        continue
-                self.nexus.update({addr: tuple(message.split(' '))})
+                if nexus_id in self.nexus: continue
+                self.nexus.update({nexus_id: {'addr': addr, 'sub_port': sub_port, 'pub_port': pub_port}})
                 self._connect_to_nexus()
 
     def _connect_to_nexus(self):
-        for addr in self.nexus:
+        for nexus_id in self.nexus:
+            addr = self.nexus[nexus_id]['addr']
             con_addr = LOCALHOST if addr[0] in self.myips else addr[0]
-            self.sub.connect(f"tcp://{con_addr}:{self.nexus[addr][0]}")
+            self.sub.connect(f"tcp://{con_addr}:{self.nexus[nexus_id]['pub_port']}")
 
     def _topic_listen(self, topic: str):
         """Thread function to handle messages for a specific topic via a callback"""
@@ -191,7 +191,7 @@ if __name__ == "__main__":
 
     holder = TempDataClass(msg=None, topic=None)
 
-    sub.subscribe('topics.#', holder.update)
+    sub.subscribe('topics', holder.update)
     while True:
         time.sleep(1)
         print(holder.msg, holder.topic)

@@ -7,6 +7,7 @@ import socket
 import signal
 import atexit
 from rich import print as print
+import uuid
 
 PUB_PORT = 8989
 SUB_PORT = 9898
@@ -28,7 +29,7 @@ def get_local_ip():
 
 
 class StarlingNexus():
-    def __init__(self, ctx: zmq.Context=None, heartbeat_interval: int=1, echo=False):
+    def __init__(self, ctx: zmq.Context=None, heartbeat_interval: int=1, echo=False, identifier: str=None):
         self.ctx = zmq.Context.instance() if ctx is None else ctx
         self.xpub = self.ctx.socket(zmq.XPUB)
         self.xsub = self.ctx.socket(zmq.XSUB)
@@ -36,6 +37,8 @@ class StarlingNexus():
         self.xpub.bind(f'tcp://*:{PUB_PORT}')
         self.xsub.bind(f'tcp://*:{SUB_PORT}')
 
+        self.myid = identifier if identifier else str(uuid.uuid4())[:8] # Construct UUID and take first 8 characters - Should be sufficient for most use cases
+ 
         # Set up a socket pair for the observer
         self.observer_in = self.ctx.socket(zmq.PAIR)
         self.observer_out = self.ctx.socket(zmq.PAIR)
@@ -60,7 +63,7 @@ class StarlingNexus():
         """Broadcasts a heartbeat message to announce the presence of this nexus node."""
         while not self.exit_event.is_set():
             try:
-                self.beacon.send(f"{PUB_PORT} {SUB_PORT}")
+                self.beacon.send(f"{PUB_PORT} {SUB_PORT} {self.myid}")
             except Exception as e:
                 print(f"Error occurred in heartbeat: {e}")
                 break

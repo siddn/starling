@@ -58,16 +58,16 @@ class NexusPublisher():
             if self.udp.sock.fileno() in socks:
                 message, addr = self.udp.recv()
                 # Check if we already know about this nexus
-                if addr in self.nexus:
-                    if self.nexus[addr] == tuple(message.split(' ')):
-                        continue
-                self.nexus.update({addr: tuple(message.split(' '))})
+                pub_port, sub_port, nexus_id = message.split(' ')
+                if nexus_id in self.nexus: continue
+                self.nexus.update({nexus_id: {'addr': addr, 'sub_port': sub_port, 'pub_port': pub_port}})
                 self._connect_to_nexus()
 
     def _connect_to_nexus(self):
-        for addr in self.nexus:
+        for nexus_id in self.nexus:
+            addr = self.nexus[nexus_id]['addr']
             con_addr = LOCALHOST if addr[0] in self.myips else addr[0]
-            self.pub.connect(f"tcp://{con_addr}:{self.nexus[addr][1]}")
+            self.pub.connect(f"tcp://{con_addr}:{self.nexus[nexus_id]['sub_port']}")
 
     def send(self, topic: str, message: bytes):
         """Publish a message on a specific topic."""
@@ -113,8 +113,8 @@ if __name__ == "__main__":
             'orient': {'w': 1.0, 'x': 0.0, 'y': 0.0, 'z': 0.0},
             'id': '11111'
         }
-        publisher.send('tootopic', msgspec.json.encode(imu_data))
-        time.sleep(.009)
+        publisher.send('topics', msgspec.json.encode(imu_data))
+        time.sleep(1)
 
         # Cap'n Proto example
         # imu_data = IMUInfo.IMUData.new_message(
