@@ -49,6 +49,8 @@ class SnapshotCollector:
         self.writet.start()
 
     def stop(self):
+        if self.writet is None:
+            return
         self.snapshots.put("STOPWRITE")
         self.writet.join()
         if self.fhandle:
