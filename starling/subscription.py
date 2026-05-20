@@ -13,6 +13,8 @@ SMALL=1_000
 MEDIUM=10_000
 LARGE=100_000_000_000
 
+NEXUS_TIMEOUT = 5
+
 LOCALHOST = '127.0.0.1'
 
 TOPIC_DELIM_CHAR = '.'
@@ -76,6 +78,9 @@ class NexusSubscriber():
         self.recv_thread = threading.Thread(target=self._recv_loop, daemon=True)
         self.recv_thread.start()
 
+        self.watchdog_thread = threading.Thread(target=self._watchdog_loop, daemon=True)
+        self.watchdog_thread.start()
+
         atexit.register(self.stop)
 
     def _recv_loop(self):
@@ -108,9 +113,20 @@ class NexusSubscriber():
                 message, addr = self.udp.recv()
                 pub_port, sub_port, nexus_id = message.split(' ')
                 # Check if we already know about this nexus
-                if nexus_id in self.nexus: continue
-                self.nexus.update({nexus_id: {'addr': addr, 'sub_port': sub_port, 'pub_port': pub_port}})
+                if nexus_id in self.nexus:
+                    self.nexus[nexus_id]['last_seen'] = time.monotonic()
+                    continue
+                self.nexus.update({nexus_id: {'addr': addr, 'sub_port': sub_port, 'pub_port': pub_port, 'last_seen': time.monotonic()}})
                 self._connect_to_nexus()
+
+    def _watchdog_loop(self):
+        """Infrequently checks for stale nexus entries and removes them."""
+        while self.running:
+            time.sleep(1)
+            current_time = time.monotonic()
+            for nexus_id, info in self.nexus.items():
+                if current_time - info['last_seen'] > NEXUS_TIMEOUT:
+                    del self.nexus[nexus_id]
 
     def _connect_to_nexus(self):
         for nexus_id in self.nexus:
@@ -129,7 +145,8 @@ class NexusSubscriber():
 
     def subscribe(self, topic: str, callback: callable):
         if not validate_topic(topic):
-            raise ValueError(f"Invalid topic name: {topic}, please ensure it does not start or end with a '.', doesn't contain consecutive '.' characters, and does not contain wildcards in invalid contexts.")
+            err_msg = f"Invalid topic name: {topic}, please ensure it does not start or end with a '.', doesn't contain consecutive '.' characters, and does not contain wildcards in invalid contexts."
+            raise ValueError(err_msg)
 
         q = Queue(maxsize=self.queue_size)
         t = threading.Thread(target=self._topic_listen, args=(topic,), daemon=True)
@@ -171,9 +188,10 @@ class NexusSubscriber():
             self.unsubscribe(topic)
         self.running = False
         self.recv_thread.join()
+        # self.watchdog_thread.join()
         self.sub.close()
         self.udp.sock.close()
-        self.ctx.term()
+        # self.ctx.term()
 
 class TempDataClass():
     def __init__(self, msg: str, topic: str):
@@ -188,10 +206,10 @@ class TempDataClass():
 
 if __name__ == "__main__":
     sub = NexusSubscriber(queue_size=LARGE)
-
+    sub2 = NexusSubscriber(queue_size=LARGE)
     holder = TempDataClass(msg=None, topic=None)
 
-    sub.subscribe('topics', holder.update)
+    sub.subscribe('imu.thigh.#', holder.update)
     while True:
         time.sleep(1)
         print(holder.msg, holder.topic)

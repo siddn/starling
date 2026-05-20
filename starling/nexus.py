@@ -39,7 +39,6 @@ class StarlingNexus():
         # Construct UUID and take first 8 characters - Should be sufficient for most use cases
         # TODO: Maybe a better method to avoid collisions? Though this seems unlikely.
         self.myid = identifier if identifier else str(uuid.uuid4())[:8] 
- 
         # Set up a socket pair for the observer
         self.observer_in = self.ctx.socket(zmq.PAIR)
         self.observer_out = self.ctx.socket(zmq.PAIR)
@@ -116,7 +115,7 @@ class StarlingNexus():
         self.control.close()
         _control.close()
 
-        self.ctx.term()
+        # self.ctx.term()
 
         print("[dark_sea_green2]Nexus successfully shut down![/dark_sea_green2]")
 
@@ -168,8 +167,10 @@ def _main():
         """
         )
     parser.add_argument('--echo', action='store_true', help="Echo messages received from the observer socket. Useful for debugging, but bad under high load.")
+    parser.add_argument('--id', type=str, default=None, help="Optional identifier for this nexus node. If not provided, a random UUID will be generated.")
     echo = parser.parse_args().echo
-    nexus = StarlingNexus(echo=echo)
+    nexus_id = parser.parse_args().id
+    nexus = StarlingNexus(echo=echo, identifier=nexus_id)
     nexus.run()
 
 if __name__ == "__main__":

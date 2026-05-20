@@ -9,6 +9,7 @@ import re
 LOCALHOST = '127.0.0.1'
 TOPIC_DELIM_CHAR = '.'
 
+NEXUS_TIMEOUT = 5
 
 
 VALID_TOPIC_PATTERN = re.compile(r'^(([^.#*]+)|[*#])(\.([^.#*]+|[*#]))*$')
@@ -49,19 +50,33 @@ class NexusPublisher():
         self.recv_thread = threading.Thread(target=self._recv_loop, daemon=True)
         self.recv_thread.start()
 
+        self.watchdog_thread = threading.Thread(target=self._watchdog_loop, daemon=True)
+        self.watchdog_thread.start()
+
         atexit.register(self.stop)
 
     def _recv_loop(self):
         """The main loop that listens for UDP broadcasts from the Nexus."""
         while self.running:
-            socks = dict(self.poller.poll(1000))
+            socks = dict(self.poller.poll(500)) # Poll for events with a timeout of 500ms -> Allows for exit handlers to kill this thread
             if self.udp.sock.fileno() in socks:
                 message, addr = self.udp.recv()
                 # Check if we already know about this nexus
                 pub_port, sub_port, nexus_id = message.split(' ')
-                if nexus_id in self.nexus: continue
-                self.nexus.update({nexus_id: {'addr': addr, 'sub_port': sub_port, 'pub_port': pub_port}})
+                if nexus_id in self.nexus:
+                    self.nexus[nexus_id]['last_seen'] = time.monotonic()
+                    continue
+                self.nexus.update({nexus_id: {'addr': addr, 'sub_port': sub_port, 'pub_port': pub_port, 'last_seen': time.monotonic()}})
                 self._connect_to_nexus()
+
+    def _watchdog_loop(self):
+        """Infrequently checks for stale nexus entries and removes them."""
+        while self.running:
+            time.sleep(1)
+            current_time = time.monotonic()
+            for nexus_id, info in list(self.nexus.items()):
+                if current_time - info['last_seen'] > NEXUS_TIMEOUT:
+                    del self.nexus[nexus_id]
 
     def _connect_to_nexus(self):
         for nexus_id in self.nexus:
@@ -79,9 +94,10 @@ class NexusPublisher():
         """Stop the publisher and clean up resources."""
         self.running = False
         self.recv_thread.join()
+        # self.watchdog_thread.join()
         self.pub.close()
         self.udp.sock.close()
-        self.ctx.term()
+        # self.ctx.term()
 
 
 if __name__ == "__main__":
@@ -90,7 +106,7 @@ if __name__ == "__main__":
     import math
 
     publisher = NexusPublisher()
-
+    publisher2 = NexusPublisher()
     idx = 0
     time.sleep(1)  # Wait for the publisher to connect to the nexus
     while True:
@@ -104,8 +120,8 @@ if __name__ == "__main__":
             'idx': idx
         }
         idx += 1
-        publisher.send('snapshot', msgspec.json.encode(imu_data))
-        if idx > 400_000:
-            break
-        time.sleep(0.001)
+        publisher.send('imu.thigh.data', msgspec.json.encode(imu_data))
+        # if idx > 400_000:
+        #     break
+        time.sleep(0.1)
     print("DONE")
