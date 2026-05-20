@@ -55,9 +55,10 @@ def _topics():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--topic", type=str, default="#", help="The topic to monitor, use '#' for all topics")
-    parser.add_argument("--window", type=int, default=1000, help="Window size in frames to average frequency over")
+    parser.add_argument("--window", type=int, default=16, help="Window size in frames to average frequency over - Used only for lower frequency topics")
     args = parser.parse_args()
-    topics(args.topic, args.window)
+    # topics(args.topic, args.window)
+    topics2(args.topic, args.window)
 
 def topics(topicset, window):
     from collections import deque
@@ -66,7 +67,7 @@ def topics(topicset, window):
     all_topics = {}
     subscriber.subscribe(topicset, lambda msg, topic: update_topic_info(msg, topic))
     def update_topic_info(msg, topic):
-        current_info = all_topics.get(topic, {'times': deque(maxlen=window), 'count': 0})
+        current_info = all_topics.get(topic, {'times': deque(maxlen=window), 'count': 0, 'freq': 0})
         current_info['times'].append(time.perf_counter())
         current_info['count'] += 1
         all_topics[topic] = current_info
@@ -74,11 +75,75 @@ def topics(topicset, window):
 
     while True:
         time.sleep(1)
-
+        
         towrite = ""
         for t, info in all_topics.items():
+            last_seen = info['times'][-1] if len(info['times']) > 0 else time.perf_counter()
+            est_period = 1/info['freq'] if info['freq'] > 0 else float('inf')
             freq = 1/np.mean(np.diff(info['times'])) if len(info['times']) > 1 else 0
-            towrite += f"[bold green]{t:12}[/bold green] - [bold yellow]{freq:.3f} Hz[/bold yellow] - [bold cyan]{info['count']:>5} messages[/bold cyan]\n"
+
+            if (time.perf_counter() - last_seen) > 3 * est_period:
+                freq_to_print = 0
+            else:
+                freq_to_print = freq
+            towrite += f"[bold green]{t:12}[/bold green] - [bold yellow]{freq_to_print:.3f} Hz[/bold yellow] - [bold cyan]{info['count']:>5} messages[/bold cyan]\n"
+
+            info['freq'] = freq
+            all_topics[t] = info
         console.clear()
         console.rule("Starling Topics")
         console.print(towrite.strip())
+
+
+def topics2(topicset, window):
+    from collections import deque
+    import numpy as np
+    import threading
+    
+    topics_info = {}
+    subscriber = NexusSubscriber()
+    subscriber.subscribe(topicset, lambda msg, topic: update_topic_info(msg, topic))
+
+    lock = threading.Lock()
+
+    def update_topic_info(msg, topic):
+        with lock:
+            current_info = topics_info.get(topic, {'total_count': 0, 'count': 0, 'times': deque(maxlen=window), 'est_freq': 0})
+            current_info['total_count'] += 1
+            current_info['count'] += 1
+            current_info['times'].append(time.perf_counter())
+        topics_info[topic] = current_info
+    
+    prev_time = time.perf_counter()
+    while True:
+        time.sleep(1)
+        current_time = time.perf_counter()
+        time_delta = current_time - prev_time
+        towrite = ""
+        for t, info in topics_info.items():
+            last_seen = info['times'][-1] if len(info['times']) > 0 else time.perf_counter()
+
+            if info['count'] < 3:
+                freq = 1/np.mean(np.diff(info['times'])) if len(info['times']) > 1 else 0
+            else:
+                freq = info['count'] / time_delta if time_delta > 0 else 0
+
+            est_period = 1/info['est_freq'] if info['est_freq'] > 0 else float('inf')
+            if (current_time - last_seen) > 3 * est_period:
+                freq_to_print = 0
+                info['times'].clear()
+            else:
+                freq_to_print = freq
+    
+            towrite += f"[bold green]{t:12}[/bold green] - [bold yellow]{freq_to_print:.3f} Hz[/bold yellow] - [bold cyan]{info['total_count']:>5} messages[/bold cyan]\n"
+            info['count'] = 0
+            info['est_freq'] = freq
+            with lock:
+                topics_info[t] = info
+        console.clear()
+        console.rule("Starling Topics")
+        console.print(towrite.strip())
+        prev_time = current_time
+
+if __name__ == "__main__":
+    topics2("#", 16)
