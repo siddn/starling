@@ -84,6 +84,7 @@ def topics(topicset, window):
 
             if (time.perf_counter() - last_seen) > 3 * est_period:
                 freq_to_print = 0
+                info['times'].clear()
             else:
                 freq_to_print = freq
             towrite += f"[bold green]{t:12}[/bold green] - [bold yellow]{freq_to_print:.3f} Hz[/bold yellow] - [bold cyan]{info['count']:>5} messages[/bold cyan]\n"
