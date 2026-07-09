@@ -33,6 +33,8 @@ class UDPBroadcaster():
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if hasattr(socket, 'SO_REUSEPORT'):
+            self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
         self.sock.bind(('', self.port))
         self.broadcast_addrs = get_broadcast_addresses()
 
@@ -55,6 +57,8 @@ class UDPBroadcaster():
 
 if __name__ == "__main__":
     caster1 = UDPBroadcaster(port=5005)
+    caster2 = UDPBroadcaster(port=5005)
+    input("caster1 bound, press enter to release")
     # caster2 = UDPBroadcaster(port=5005)
 
     # def broadcast_messages():

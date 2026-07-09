@@ -104,7 +104,8 @@ if __name__ == "__main__":
     import msgspec
     import random
     import math
-    import win_precise_time as wpt
+    import time
+    # import win_precise_time as wpt
 
     publisher = NexusPublisher()
     publisher2 = NexusPublisher()
@@ -124,5 +125,6 @@ if __name__ == "__main__":
         publisher.send('imu.thigh.data', msgspec.json.encode(imu_data))
         # if idx > 400_000:
         #     break
-        wpt.sleep(.5)
+        # wpt.sleep(.5)
+        time.sleep(0.5)
     print("DONE")
